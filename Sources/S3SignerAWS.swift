@@ -70,11 +70,11 @@ public class S3SignerAWS  {
         return URLV4Returnable(headers: headers, urlString: presignedURL)
     }
     
-    public func presignedURLV2(urlString: String, expiration: TimeFromNow) throws -> String {
+    public func presignedURLV2(httpMethod: HTTPMethod, contentType:String, urlString: String, expiration: TimeFromNow) throws -> String {
         let expirationTime = expiration.v2Expiration
         
         guard let url = URL(string: urlString) else { throw S3SignerError.badURL }
-        guard let stringToSign = ["GET", "", "", "\(expirationTime)", path(url: url)].joined(separator: "\n").data(using: String.Encoding.utf8) else { throw S3SignerError.unableToEncodeStringToSign }
+        guard let stringToSign = [httpMethod.rawValue, "", contentType, "\(expirationTime)", path(url: url)].joined(separator: "\n").data(using: String.Encoding.utf8) else { throw S3SignerError.unableToEncodeStringToSign }
         
         let stringToSignBytes = try stringToSign.makeBytes()
         let signature = try HMAC.make(.sha1, stringToSignBytes, key: secretKey.bytes).base64String.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
@@ -84,7 +84,7 @@ public class S3SignerAWS  {
         
         return finalURLString
     }
-    
+  
     fileprivate func generateAuthHeader(httpMethod: HTTPMethod, url: URL, pathEncoding: CharacterSet, queryEncoding: CharacterSet, headers: [String:String], bodyDigest: String, dates: Dates) throws -> String {
         let canonicalRequestHex = try createCanonicalRequest(httpMethod: httpMethod, url: url, pathEncoding: pathEncoding, queryEncoding: queryEncoding, headers: headers, bodyDigest: bodyDigest)
         let stringToSign = try createStringToSign(canonicalRequest: canonicalRequestHex, timeStampLong: dates.long, timeStampShort: dates.short)
