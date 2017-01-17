@@ -140,7 +140,7 @@ Similar to the ease of generating authentication headers, to generate a pre-sign
 V4 is the only authorization accepted by all s3 regions, however, since I had the implementation complete I decided to include V2 as well.
 
 ```ruby
-    let presignedURL = presignedURLV2(urlString: String, expiration: TimeFromNow) throws -> String
+    let presignedURL = presignedURLV2(httpMethod: HTTPMethod, contentType:String, urlString: String, expiration: TimeFromNow) throws -> String
 ```
 ### Known Limitations
 - bucket names that contain "-" may get a 403 response("Signature does not match") from AWS.
