@@ -1,5 +1,6 @@
 import Core
 import Crypto
+import Bits
 
 /// The Payload associated with a request.
 ///
@@ -30,9 +31,9 @@ public enum Payload {
     internal func hashed() throws -> String {
         switch self {
         case .bytes(let bytes):
-            return try Hash.make(.sha256, bytes).hexString
+            return try SHA256.hash(bytes).string
         case .none:
-            return try Hash.make(.sha256, "".bytes).hexString
+            return try SHA256.hash(bytes).hexEncodedString()
         case .unsigned:
             return "UNSIGNED-PAYLOAD"
             

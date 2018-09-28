@@ -1,6 +1,7 @@
 import Foundation
 import Crypto
 import Core
+import Bits
 
 public class S3SignerAWS  {
 	
@@ -73,7 +74,7 @@ public class S3SignerAWS  {
 				bodyDigest: bodyDigest)
 			
 			if httpMethod == .put && payload.isBytes {
-				updatedHeaders["content-md5"] = try Hash.make(.md5, payload.bytes).base64Encoded.makeString()
+				updatedHeaders["content-md5"] = try MD5.hash(payload.bytes).base64EncodedData().string
 			}
 			
 			updatedHeaders["Authorization"] = try generateAuthHeader(
@@ -193,11 +194,11 @@ public class S3SignerAWS  {
 		timeStampShort: String)
 		throws -> String
 	{
-		let dateKey = try HMAC.make(.sha256, timeStampShort.bytes, key: "AWS4\(secretKey)".bytes)
-		let dateRegionKey = try HMAC.make(.sha256, region.rawValue.bytes, key: dateKey)
-		let dateRegionServiceKey = try HMAC.make(.sha256, service.bytes, key: dateRegionKey)
-		let signingKey = try HMAC.make(.sha256, "aws4_request".bytes, key: dateRegionServiceKey)
-		let signature = try HMAC.make(.sha256, stringToSign.bytes, key: signingKey).hexString
+		let dateKey = try HMAC.SHA256.authenticate(timeStampShort.bytes, key: "AWS4\(secretKey)".bytes)
+		let dateRegionKey = try HMAC.SHA256.authenticate(region.rawValue.bytes, key: dateKey)
+		let dateRegionServiceKey = try HMAC.SHA256.authenticate(service.bytes, key: dateRegionKey)
+		let signingKey = try HMAC.SHA256.authenticate("aws4_request".bytes, key: dateRegionServiceKey)
+		let signature = try HMAC.SHA256.authenticate(stringToSign.bytes, key: signingKey).hexEncodedString()
 		return signature
 	}
 
@@ -213,12 +214,11 @@ public class S3SignerAWS  {
 		dates: Dates)
 		throws -> String
 	{
-		let canonRequestHash = try Hash.make(.sha256, canonicalRequest.bytes).hexString
-		return ["AWS4-HMAC-SHA256",
+		let canonRequestHash = try SHA256.hash(canonicalRequest.bytes).string
+        return ["AWS4-HMAC-SHA256",
 		        dates.long,
 		        credentialScope(timeStampShort: dates.short),
-		        canonRequestHash]
-			.joined(separator: "\n")
+		        canonRequestHash].joined(separator: "\n")
 	}
 	
 	/// Credential scope

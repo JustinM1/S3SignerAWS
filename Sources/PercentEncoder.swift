@@ -1,19 +1,32 @@
 import Core
+import Bits
 
 // MARK: - Allowed characters when calculating AWS Signatures.
 extension Byte {
-	internal static let awsQueryAllowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~=&".makeBytes()
+	internal static let awsQueryAllowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~=&".bytes
 	
-	internal static let awsPathAllowed  = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~/".makeBytes()
+	internal static let awsPathAllowed  = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~/".bytes
+}
+
+extension Collection where Iterator.Element == Byte {
+
+    internal var string: String {
+        return String(bytes: self, encoding: .utf8) ?? ""
+    }
 }
 
 extension String {
+    
+    internal var bytes: [UInt8] {
+        return Array(self.utf8)
+    }
+    
 	internal func percentEncode(allowing allowed: Bytes) throws -> String {
-		let bytes = self.makeBytes()
+		let bytes = self.bytes
 		let encodedBytes = try percentEncodedUppercase(bytes, shouldEncode: {
 			return !allowed.contains($0)
 		})
-		return encodedBytes.makeString()
+		return encodedBytes.string
 	}
 	
 	private func percentEncodedUppercase(
