@@ -3,7 +3,7 @@ import Crypto
 import Core
 import Bits
 
-public class S3SignerAWS  {
+public class S3Signer {
 	
 	/// AWS Access Key
 	private let accessKey: String
@@ -189,7 +189,7 @@ public class S3SignerAWS  {
 	///   - timeStampShort: Short timestamp.
 	/// - Returns: Signature.
 	/// - Throws: HMAC error.
-	internal func createSignature(
+	public func createSignature(
 		stringToSign: String,
 		timeStampShort: String)
 		throws -> String
@@ -225,7 +225,7 @@ public class S3SignerAWS  {
 	///
 	/// - Parameter timeStampShort: Short timestamp.
 	/// - Returns: Credential Scope.
-	private func credentialScope(
+	public func credentialScope(
 		timeStampShort: String)
 		-> String
 	{
