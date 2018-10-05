@@ -214,7 +214,7 @@ public class S3Signer {
 		dates: Dates)
 		throws -> String
 	{
-		let canonRequestHash = try SHA256.hash(canonicalRequest.bytes).string
+		let canonRequestHash = try SHA256.hash(canonicalRequest.bytes).hexEncodedString()
         return ["AWS4-HMAC-SHA256",
 		        dates.long,
 		        credentialScope(timeStampShort: dates.short),
