@@ -31,7 +31,7 @@ public enum Payload {
     internal func hashed() throws -> String {
         switch self {
         case .bytes(let bytes):
-            return try SHA256.hash(bytes).string
+            return try SHA256.hash(bytes).hexEncodedString()
         case .none:
             return try SHA256.hash(bytes).hexEncodedString()
         case .unsigned:

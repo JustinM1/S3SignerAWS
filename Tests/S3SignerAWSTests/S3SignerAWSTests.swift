@@ -17,11 +17,11 @@ class S3SignerAWSTests: XCTestCase {
 		("test_UnsignedPayload_adds_proper_content_header", test_UnsignedPayload_adds_proper_content_header)
 	]
 	
-	var signer: S3SignerAWS!
+	var signer: S3Signer!
 	
 	override func setUp() {
 		super.setUp()
-		signer = S3SignerAWS(accessKey: "SomeAccessKey", secretKey: "SomeSecretKey", region: .usEast1_Virginia)
+		signer = S3Signer(accessKey: "SomeAccessKey", secretKey: "SomeSecretKey", region: .usEast1_Virginia)
 	}
 	
 	func test_Dates_formatting() {
