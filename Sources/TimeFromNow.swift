@@ -11,8 +11,8 @@ public enum TimeFromNow {
     case oneHour
     case threeHours
     case custom(Seconds)
-	
-	
+    
+    
     /// V4 expiration.
     internal var expiration: Seconds {
         switch self {

@@ -8,9 +8,9 @@
 /// - put: PUT
 /// See https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectOps.html for more information.
 public enum HTTPMethod: String {
-	case delete = "DELETE"
+    case delete = "DELETE"
     case get = "GET"
-	case head = "HEAD"
-	case post = "POST"
+    case head = "HEAD"
+    case post = "POST"
     case put = "PUT"
 }
