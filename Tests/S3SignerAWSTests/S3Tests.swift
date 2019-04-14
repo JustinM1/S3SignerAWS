@@ -73,7 +73,7 @@ class S3Tests: XCTestCase {
 
     func test_Put_Object() {
         let requestURL = URL(string: "https://examplebucket.s3.amazonaws.com/test$file.text")!
-        let payload = try! Payload.bytes("Welcome to Amazon S3.".convertToData()).hashed()
+        let payload = try! Payload.data("Welcome to Amazon S3.".convertToData()).hashed()
 
         let updatedHeaders = signer.updateHeaders(headers: ["x-amz-storage-class": "REDUCED_REDUNDANCY", "Date": "Fri, 24 May 2013 00:00:00 GMT"], url: requestURL, longDate: signer.overridenDate!.long, bodyDigest: payload)
 

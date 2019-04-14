@@ -4,25 +4,25 @@ import Bits
 
 /// The Payload associated with a request.
 ///
-/// - bytes: The bytes of the request.
+/// - data: The data of the request.
 /// - none: No payload is in the request. i.e. GET request.
 /// - unsigned: The size of payload will not go into signature calcuation. Useful if size is unknown at time of signature creation. Less secure as the payload can be changed and the signature won't be effected.
 public enum Payload {
-    case bytes(Data)
+    case data(Data)
     case none
     case unsigned
     
-    internal var bytes: Data {
+    internal var data: Data {
         switch self {
-        case .bytes(let bytes):
-            return bytes
+        case .data(let data):
+            return data
         default:
-            return  "".convertToData()
+            return "".convertToData()
         }
     }
     
     /// Hash the payload being sent to AWS.
-    /// - Bytes: are hashed using SHA256
+    /// - Data: Hashed using SHA256
     /// - None: Guaranteed no payload being sent, requires an empty string SHA256.
     /// - Unsigned: Any size payload will be accepted, wasn't considered in part of the signature.
     ///
@@ -30,19 +30,17 @@ public enum Payload {
     /// - Throws: Hash Error.
     internal func hashed() throws -> String {
         switch self {
-        case .bytes(let bytes):
-            return try SHA256.hash(bytes).hexEncodedString()
-        case .none:
-            return try SHA256.hash(bytes).hexEncodedString()
+        case .data, .none:
+            return try SHA256.hash(data).hexEncodedString()
         case .unsigned:
             return "UNSIGNED-PAYLOAD"
             
         }
     }
     
-    internal var isBytes: Bool {
+    internal var isData: Bool {
         switch self {
-        case .bytes( _), .none:
+        case .data, .none:
             return true
         default:
             return false
@@ -51,8 +49,8 @@ public enum Payload {
     
     internal func size() -> String {
         switch self {
-        case .bytes, .none:
-            return self.bytes.count.description
+        case .data, .none:
+            return self.data.count.description
         case .unsigned:
             return "UNSIGNED-PAYLOAD"
         }

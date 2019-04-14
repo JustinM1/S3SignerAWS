@@ -72,8 +72,8 @@ public class S3SignerAWS  {
             longDate: dates.long,
             bodyDigest: bodyDigest)
         
-        if httpMethod == .put && payload.isBytes {
-            updatedHeaders["content-md5"] = try MD5.hash(payload.bytes).base64EncodedString()
+        if httpMethod == .put && payload.isData {
+            updatedHeaders["content-md5"] = try MD5.hash(payload.data).base64EncodedString()
         }
         
         updatedHeaders["Authorization"] = try generateAuthHeader(

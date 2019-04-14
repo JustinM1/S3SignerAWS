@@ -42,11 +42,11 @@ class S3SignerAWSTests: XCTestCase {
     
     func test_Payload_bytes() {
         let sampleBytes = "S3SignerAWS".convertToData()
-        let payloadBytes = Payload.bytes(sampleBytes)
+        let payloadBytes = Payload.data(sampleBytes)
         let payloadSize = sampleBytes.count.description
-        XCTAssertTrue(payloadBytes.isBytes)
+        XCTAssertTrue(payloadBytes.isData)
         XCTAssertFalse(payloadBytes.isUnsigned)
-        XCTAssertEqual(sampleBytes, payloadBytes.bytes)
+        XCTAssertEqual(sampleBytes, payloadBytes.data)
         XCTAssertEqual(payloadBytes.size(), payloadSize)
     }
     
@@ -54,16 +54,16 @@ class S3SignerAWSTests: XCTestCase {
         let sampleBytes = "".convertToData()
         let payloadNone = Payload.none
         let payloadSize = sampleBytes.count.description
-        XCTAssertTrue(payloadNone.isBytes)
+        XCTAssertTrue(payloadNone.isData)
         XCTAssertFalse(payloadNone.isUnsigned)
-        XCTAssertEqual(sampleBytes, payloadNone.bytes)
+        XCTAssertEqual(sampleBytes, payloadNone.data)
         XCTAssertEqual(payloadNone.size(), payloadSize)
     }
     
     func test_Payload_unsigned() {
         let unsigned = "UNSIGNED-PAYLOAD"
         let payloadUnsigned = Payload.unsigned
-        XCTAssertFalse(payloadUnsigned.isBytes)
+        XCTAssertFalse(payloadUnsigned.isData)
         XCTAssertTrue(payloadUnsigned.isUnsigned)
         XCTAssertEqual(unsigned, payloadUnsigned.size())
         XCTAssertEqual(unsigned, try! payloadUnsigned.hashed())
@@ -102,11 +102,11 @@ class S3SignerAWSTests: XCTestCase {
         let headers = try! signer.authHeaderV4(
             httpMethod: .put,
             urlString: "https://www.someURL.com/someFile.txt",
-            payload: .bytes(randomBytesMessage))
+            payload: .data(randomBytesMessage))
         
         XCTAssertNotNil(headers["Content-Length"])
         XCTAssertNotNil(headers["Content-Type"])
-        XCTAssertEqual(headers["Content-Length"], Payload.bytes(randomBytesMessage).size())
+        XCTAssertEqual(headers["Content-Length"], Payload.data(randomBytesMessage).size())
         XCTAssertEqual(headers["Content-Type"], "txt")
     }
     
