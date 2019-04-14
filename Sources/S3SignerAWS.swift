@@ -281,41 +281,46 @@ public class S3SignerAWS  {
         headers: [String: String])
         throws -> (String, URL)
     {
-        guard let credScope = credentialScope(timeStampShort: dates.short).percentEncode(.queryAllowed),
-            let signHeaders = signedHeaders(headers: headers).percentEncode(.queryAllowed) else {
-                throw S3SignerError.invalidEncoding
-        }
-        
+        let credScope = credentialScope(timeStampShort: dates.short)
+        let signHeaders = signedHeaders(headers: headers)
+
         guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
             throw S3SignerError.badURL
         }
         
         let defaultParams: [(name: String, value: String)] = [
             ("X-Amz-Algorithm", "AWS4-HMAC-SHA256"),
-            ("X-Amz-Credential", "\(accessKey)%2F\(credScope)"),
+            ("X-Amz-Credential", "\(accessKey)/\(credScope)"),
             ("X-Amz-Date", "\(dates.long)"),
             ("X-Amz-Expires", "\(expiration.expiration)"),
             ("X-Amz-SignedHeaders", "\(signHeaders)")
         ]
-        
-        components.percentEncodedQueryItems = ((components.queryItems ?? []) + defaultParams.map { URLQueryItem(name: $0.name, value: $0.value) })
+
+        components.queryItems = ((components.queryItems ?? []) + defaultParams.map { URLQueryItem(name: $0.name, value: $0.value) })
             .sorted(by: { $0.name < $1.name })
-        
+
         // This should never throw. 
         guard let url =  components.url else {
             throw S3SignerError.badURL
         }
-        
+
+        let encodedQuery = try query(url: url)
+        components.percentEncodedQuery = encodedQuery
+
+        guard let updatedURL = components.url else {
+            throw S3SignerError.badURL
+        }
+
         return try (
             [
                 httpMethod.rawValue,
-                path(url: url),
-                query(url: url),
+                path(url: updatedURL),
+                encodedQuery,
                 canonicalHeaders(headers: headers),
-                signedHeaders(headers: headers),
+                signHeaders,
                 "UNSIGNED-PAYLOAD"
                 ].joined(separator: "\n"),
-            url)
+            updatedURL)
     }
     
     /// Encode and sort queryItems.
@@ -324,9 +329,8 @@ public class S3SignerAWS  {
     /// - Returns: Encoded and sorted(By Key) queryItem String.
     /// - Throws: Encoding Error
     internal func query(url: URL) throws -> String {
-        if let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.percentEncodedQueryItems {
-            let items = queryItems.map({ ($0.name, $0.value ?? "") })
-            let encodedItems = items.map({ "\($0.0)=\($0.1)" })
+        if let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems {
+            let encodedItems = queryItems.map { "\($0.name.percentEncode(.queryAllowed) ?? "")=\($0.value?.percentEncode(.queryAllowed) ?? "")" }
             return encodedItems.sorted().joined(separator: "&")
         }
         return ""
