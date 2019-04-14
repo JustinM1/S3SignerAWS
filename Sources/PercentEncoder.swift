@@ -1,38 +1,17 @@
 import Core
+import Bits
 
 // MARK: - Allowed characters when calculating AWS Signatures.
-extension Byte {
-	internal static let awsQueryAllowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~=&".makeBytes()
-	
-	internal static let awsPathAllowed  = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~/".makeBytes()
+enum AWSEncoding: String {
+    case queryAllowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~=&"
+    case pathAllowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._~/"
 }
 
 extension String {
-	internal func percentEncode(allowing allowed: Bytes) throws -> String {
-		let bytes = self.makeBytes()
-		let encodedBytes = try percentEncodedUppercase(bytes, shouldEncode: {
-			return !allowed.contains($0)
-		})
-		return encodedBytes.makeString()
-	}
-	
-	private func percentEncodedUppercase(
-		_ input: [Byte],
-		shouldEncode: (Byte) throws -> Bool = { _ in true }
-		) throws -> [Byte] {
-		var group: [Byte] = []
-		try input.forEach { byte in
-			if try shouldEncode(byte) {
-				let hex = String(byte, radix: 16).uppercased().utf8
-				group.append(.percent)
-				if hex.count == 1 {
-					group.append(.zero)
-				}
-				group.append(contentsOf: hex)
-			} else {
-				group.append(byte)
-			}
-		}
-		return group
-	}
+    
+    internal func percentEncode(_ type: AWSEncoding) -> String?{
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: type.rawValue)
+        return addingPercentEncoding(withAllowedCharacters: allowed)
+    }
 }

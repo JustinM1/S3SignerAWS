@@ -1,10 +1,10 @@
 # S3SignerAWS
 
 [![codecov](https://codecov.io/gh/JustinM1/S3SignerAWS/branch/master/graph/badge.svg)](https://codecov.io/gh/JustinM1/S3SignerAWS)
-[![Build Status](https://www.bitrise.io/app/cf5b884ca2181b4c/status.svg?token=QM_jU5_3BEQRmt0OmdVwJw&branch=master)](https://www.bitrise.io/app/cf5b884ca2181b4c)
+[![Build Status](https://app.bitrise.io/app/cf5b884ca2181b4c/status.svg?token=QM_jU5_3BEQRmt0OmdVwJw&branch=master)](https://app.bitrise.io/app/cf5b884ca2181b4c)
 [![CircleCI](https://circleci.com/gh/JustinM1/S3SignerAWS.svg?style=svg)](https://circleci.com/gh/JustinM1/S3SignerAWS)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2a752fec330b42299f4425448cfee76e)](https://www.codacy.com/app/JustinM1/S3SignerAWS?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JustinM1/S3SignerAWS&amp;utm_campaign=Badge_Grade)
-<img src="http://img.shields.io/badge/Swift-4.0-blue.svg?style=plastic" alt="Swift 4.0"/>
+<img src="http://img.shields.io/badge/Swift-5.0-blue.svg?style=plastic" alt="Swift 5.0"/>
 
 
 Generates V4 authorization headers and pre-signed URLs for authenticating AWS S3 REST API calls
@@ -37,7 +37,7 @@ Import PackageDescription
     name: "Your_Project_Name",
     targets: [],
     dependencies: [
-        .Package(url: "https://github.com/JustinM1/S3SignerAWS.git", majorVersion: 3)
+        .package(url: "https://github.com/JustinM1/S3SignerAWS.git", from: "4.0.0")
     ]
   )  
   ```
@@ -46,19 +46,14 @@ Import PackageDescription
 **NOTE ABOUT PAYLOAD:**
 
 Requests can either have a signed payload or an unsigned payload.
-* _S3SignerAWS is built using `Vapor Server` framework `Crypto` and uses `Bytes` as the payload data type. `Bytes` is a typealias of `[UInt8]`_
-For example, to convert a data object to bytes you do the following:
 
-```ruby
-let bytes = try someDataObject.makeBytes()
-```
 * If you know the request will not have a payload, set the Payload property to none. This tells s3 that the signature was created with no payload intended
 * If you are not sure what the exact payload will be, set payload property to unsigned. This tells s3 when you made the signature, there was a possibility of a payload but you weren't sure what specific object will be uploaded.
 * `Payload` enum:
 
     ```ruby
     public enum Payload {
-      case bytes(Bytes)
+      case data(Data)
       case none
       case unsigned
     }
