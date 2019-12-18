@@ -175,22 +175,22 @@ public class S3SignerAWS  {
         timeStampShort: String)
         throws -> String
     {
-        let dateKey = hmacSign(data: timeStampShort, key: "AWS4\(secretKey)")
+        let dateKey = hmacSign(data: timeStampShort, key: Data("AWS4\(secretKey)".utf8))
         let dateRegionKey = hmacSign(data: region.rawValue, key: dateKey)
         let dateRegionServiceKey = hmacSign(data: service, key: dateRegionKey)
         let signingKey = hmacSign(data: "aws4_request", key: dateRegionServiceKey)
         let signature = hmacSign(data: stringToSign, key: signingKey)
         
-        return [UInt8](signature.utf8).hexEncodedString()
+        return signature.hexEncodedString()
     }
     
-    func hmacSign(data: String, key: String) -> String {
+    func hmacSign(data: String, key: Data) -> Data {
         let stringToSign = data.data(using: .utf8) ?? Data()
-        let key = SymmetricKey(data: Data(base64Encoded: key, options: Data.Base64DecodingOptions(rawValue: 0)) ?? Data())
+        let key = SymmetricKey(data: key)
         let hash = HMAC<SHA256>.authenticationCode(for: stringToSign,
                                                    using: key)
         
-        return Data(hash).base64EncodedString()
+        return Data(hash)
     }
     
     /// Create the String To Sign portion of signature.
