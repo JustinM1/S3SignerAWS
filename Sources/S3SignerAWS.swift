@@ -1,6 +1,5 @@
 import Foundation
-import Crypto
-import Core
+import OpenCrypto
 
 public class S3SignerAWS  {
     
@@ -73,7 +72,7 @@ public class S3SignerAWS  {
             bodyDigest: bodyDigest)
         
         if httpMethod == .put && payload.isData {
-            updatedHeaders["content-md5"] = try MD5.hash(payload.data).base64EncodedString()
+            updatedHeaders["content-md5"] = Data(Insecure.MD5.hash(data: [UInt8](payload.data))).base64EncodedString()
         }
         
         updatedHeaders["Authorization"] = try generateAuthHeader(
@@ -176,12 +175,22 @@ public class S3SignerAWS  {
         timeStampShort: String)
         throws -> String
     {
-        let dateKey = try HMAC.SHA256.authenticate(timeStampShort.convertToData(), key: "AWS4\(secretKey)").convertToData()
-        let dateRegionKey = try HMAC.SHA256.authenticate(region.rawValue.convertToData(), key: dateKey)
-        let dateRegionServiceKey = try HMAC.SHA256.authenticate(service.convertToData(), key: dateRegionKey)
-        let signingKey = try HMAC.SHA256.authenticate("aws4_request".convertToData(), key: dateRegionServiceKey)
-        let signature = try HMAC.SHA256.authenticate(stringToSign.convertToData(), key: signingKey).hexEncodedString()
-        return signature
+        let dateKey = hmacSign(data: timeStampShort, key: "AWS4\(secretKey)")
+        let dateRegionKey = hmacSign(data: region.rawValue, key: dateKey)
+        let dateRegionServiceKey = hmacSign(data: service, key: dateRegionKey)
+        let signingKey = hmacSign(data: "aws4_request", key: dateRegionServiceKey)
+        let signature = hmacSign(data: stringToSign, key: signingKey)
+        
+        return [UInt8](signature.utf8).hexEncodedString()
+    }
+    
+    func hmacSign(data: String, key: String) -> String {
+        let stringToSign = data.data(using: .utf8) ?? Data()
+        let key = SymmetricKey(data: Data(base64Encoded: key, options: Data.Base64DecodingOptions(rawValue: 0)) ?? Data())
+        let hash = HMAC<SHA256>.authenticationCode(for: stringToSign,
+                                                   using: key)
+        
+        return Data(hash).base64EncodedString()
     }
     
     /// Create the String To Sign portion of signature.
@@ -196,7 +205,7 @@ public class S3SignerAWS  {
         dates: Dates)
         throws -> String
     {
-        let canonRequestHash = try SHA256.hash(canonicalRequest.convertToData()).hexEncodedString()
+        let canonRequestHash = [UInt8](Data(SHA256.hash(data: [UInt8](canonicalRequest.utf8)))).hexEncodedString()
         return ["AWS4-HMAC-SHA256",
                 dates.long,
                 credentialScope(timeStampShort: dates.short),

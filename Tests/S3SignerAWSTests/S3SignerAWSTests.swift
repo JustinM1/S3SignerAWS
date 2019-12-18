@@ -41,7 +41,7 @@ class S3SignerAWSTests: XCTestCase {
     }
     
     func test_Payload_bytes() {
-        let sampleBytes = "S3SignerAWS".convertToData()
+        let sampleBytes = "S3SignerAWS".data(using: .utf8)!
         let payloadBytes = Payload.data(sampleBytes)
         let payloadSize = sampleBytes.count.description
         XCTAssertTrue(payloadBytes.isData)
@@ -51,7 +51,7 @@ class S3SignerAWSTests: XCTestCase {
     }
     
     func test_Payload_none() {
-        let sampleBytes = "".convertToData()
+        let sampleBytes = "".data(using: .utf8)!
         let payloadNone = Payload.none
         let payloadSize = sampleBytes.count.description
         XCTAssertTrue(payloadNone.isData)
@@ -98,7 +98,7 @@ class S3SignerAWSTests: XCTestCase {
     }
     
     func test_Put_with_pathExtension_adds_content_length_And_content_type() {
-        let randomBytesMessage = "Welcome to Amazon S3.".convertToData()
+        let randomBytesMessage = "Welcome to Amazon S3.".data(using: .utf8)!
         let headers = try! signer.authHeaderV4(
             httpMethod: .put,
             urlString: "https://www.someURL.com/someFile.txt",
