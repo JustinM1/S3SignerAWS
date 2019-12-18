@@ -176,7 +176,7 @@ public class S3SignerAWS  {
         throws -> String
     {
         let dateKey = hmacSign(data: timeStampShort, key: Data("AWS4\(secretKey)".utf8))
-        let dateRegionKey = hmacSign(data: region.rawValue, key: dateKey)
+        let dateRegionKey = hmacSign(data: region.value, key: dateKey)
         let dateRegionServiceKey = hmacSign(data: service, key: dateRegionKey)
         let signingKey = hmacSign(data: "aws4_request", key: dateRegionServiceKey)
         let signature = hmacSign(data: stringToSign, key: signingKey)
@@ -223,7 +223,7 @@ public class S3SignerAWS  {
     {
         return  [
             timeStampShort,
-            region.rawValue,
+            region.value,
             service, "aws4_request"
             ].joined(separator: "/")
     }

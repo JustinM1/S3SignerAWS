@@ -1,20 +1,41 @@
 /// The region the bucket is located.
-public enum Region: String {
+public enum Region {
     
-    case apNortheast1 = "ap-northeast-1"
-    case apNortheast2 = "ap-northeast-2"
-    case apSouth1 = "ap-south-1"
-    case apSoutheast1 = "ap-southeast-1"
-    case apSoutheast2 = "ap-southeast-2"
-    case caCentral1 = "ca-central-1"
-    case euCentral1 = "eu-central-1"
-    case euWest1 = "eu-west-1"
-    case euWest2 = "eu-west-2"
-    case saEast1 = "sa-east-1"
-    case usEast1_Virginia = "us-east-1"
-    case usEast2_Ohio = "us-east-2"
-    case usWest1 = "us-west-1"
-    case usWest2 = "us-west-2"
+    case apNortheast1
+    case apNortheast2
+    case apSouth1
+    case apSoutheast1
+    case apSoutheast2
+    case caCentral1
+    case euCentral1
+    case euWest1
+    case euWest2
+    case saEast1
+    case usEast1_Virginia
+    case usEast2_Ohio
+    case usWest1
+    case usWest2
+    case custom(name: String)
+    
+    public var value: String {
+        switch self {
+        case .apNortheast1: return "ap-northeast-1"
+        case .apNortheast2: return "ap-northeast-2"
+        case .apSouth1: return "ap-south-1"
+        case .apSoutheast1: return "ap-southeast-1"
+        case .apSoutheast2: return "ap-southeast-2"
+        case .caCentral1: return "ca-central-1"
+        case .euCentral1: return "eu-central-1"
+        case .euWest1: return "eu-west-1"
+        case .euWest2: return "eu-west-2"
+        case .saEast1: return "sa-east-1"
+        case .usEast1_Virginia: return "us-east-1"
+        case .usEast2_Ohio: return "us-east-2"
+        case .usWest1: return "us-west-1"
+        case .usWest2: return "us-west-2"
+        case .custom(let name): return name
+        }
+    }
     
     public var host: String {
         switch self {
@@ -32,6 +53,7 @@ public enum Region: String {
         case .usEast2_Ohio: return "s3.us-east-2.amazonaws.com"
         case .usWest1: return "s3-us-west-1.amazonaws.com"
         case .usWest2: return "s3-us-west-2.amazonaws.com"
+        case .custom(let name): return "s3-\(name).amazonaws.com"
         }
     }
 }
