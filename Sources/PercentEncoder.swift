@@ -1,5 +1,4 @@
-import Core
-import Bits
+import Foundation
 
 // MARK: - Allowed characters when calculating AWS Signatures.
 enum AWSEncoding: String {
@@ -9,7 +8,7 @@ enum AWSEncoding: String {
 
 extension String {
     
-    internal func percentEncode(_ type: AWSEncoding) -> String?{
+    internal func percentEncode(_ type: AWSEncoding) -> String? {
         var allowed = CharacterSet.alphanumerics
         allowed.insert(charactersIn: type.rawValue)
         return addingPercentEncoding(withAllowedCharacters: allowed)
